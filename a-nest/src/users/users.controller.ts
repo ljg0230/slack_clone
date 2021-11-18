@@ -6,8 +6,12 @@ import {
   Res,
   Body,
   UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { LocalAuthGuard } from 'src/auth/local-auth.guard';
+import { LoggedInGuard } from 'src/auth/logged-in.guard';
+import { NotLoggedInGuard } from 'src/auth/not-logged-in.guard';
 import { User } from 'src/common/decorators/user.decorator';
 import { UserDto } from 'src/common/dto/user.dto';
 import { UndefindeToNullInterceptor } from 'src/common/interceptors/undefinedToNull.interceptor';
@@ -26,13 +30,14 @@ export class UsersController {
   @ApiOperation({ summary: '내 정보 조회' })
   @Get()
   getUsers(@User() user) {
-    return user;
+    return user || false; // false 시 로그인 안한 상태, guard 필요없음
   }
 
+  @UseGuards(new NotLoggedInGuard())
   @ApiOperation({ summary: '회원가입' })
   @Post()
-  postUsers(@Body() body: JoinRequestDto) {
-    this.usersService.postUsers(body.email, body.nickname, body.password);
+  async join(@Body() body: JoinRequestDto) {
+    await this.usersService.join(body.email, body.nickname, body.password);
   }
 
   @ApiResponse({
@@ -46,11 +51,13 @@ export class UsersController {
     description: 'Server Error',
   })
   @ApiOperation({ summary: '로그인' })
+  @UseGuards(new LocalAuthGuard())
   @Post('login')
   logIn(@User() user) {
     return user;
   }
 
+  @UseGuards(new LoggedInGuard())
   @ApiOperation({ summary: '로그아웃' })
   @Post('logout')
   logOut(@Req() req, @Res() res) {
