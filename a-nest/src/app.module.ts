@@ -11,6 +11,7 @@ import { DmsModule } from './dms/dms.module';
 import * as ormconfig from '../ormconfig';
 import { Users } from './entities/Users';
 import { AuthModule } from './auth/auth.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AuthModule } from './auth/auth.module';
     DmsModule,
     TypeOrmModule.forRoot(ormconfig),
     TypeOrmModule.forFeature([Users]),
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
