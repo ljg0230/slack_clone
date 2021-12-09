@@ -1,7 +1,9 @@
 import React from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import LogIn from '@pages/LogIn';
-import Signup from '@pages/SignUp';
+import loadable from '@loadable/component';
+
+const LogIn = loadable(() => import('@pages/LogIn'));
+const Signup = loadable(() => import('@pages/SignUp'));
 
 const App = () => {
   return (
