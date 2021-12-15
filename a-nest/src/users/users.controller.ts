@@ -7,6 +7,8 @@ import {
   Body,
   UseInterceptors,
   UseGuards,
+  NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
@@ -36,8 +38,21 @@ export class UsersController {
   @UseGuards(new NotLoggedInGuard())
   @ApiOperation({ summary: '회원가입' })
   @Post()
-  async join(@Body() body: JoinRequestDto) {
-    await this.usersService.join(body.email, body.nickname, body.password);
+  async join(@Body() data: JoinRequestDto) {
+    const user = this.usersService.findByEmail(data.email);
+    if (!user) {
+      throw new NotFoundException();
+    }
+    const result = await this.usersService.join(
+      data.email,
+      data.nickname,
+      data.password,
+    );
+    if (result) {
+      return 'ok';
+    } else {
+      throw new ForbiddenException();
+    }
   }
 
   @ApiResponse({
@@ -53,7 +68,7 @@ export class UsersController {
   @ApiOperation({ summary: '로그인' })
   @UseGuards(new LocalAuthGuard())
   @Post('login')
-  logIn(@User() user) {
+  async logIn(@User() user) {
     return user;
   }
 
