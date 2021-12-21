@@ -35,7 +35,7 @@ export class UsersController {
   @ApiCookieAuth('connect.sid')
   @ApiOperation({ summary: '내 정보 조회' })
   @Get()
-  getUsers(@User() user) {
+  async getUsers(@User() user: Users) {
     return user || false; // false 시 로그인 안한 상태, guard 필요없음
   }
 
