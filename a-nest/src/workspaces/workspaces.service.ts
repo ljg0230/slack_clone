@@ -45,7 +45,7 @@ export class WorkspacesService {
     workspace.url = url;
     workspace.OwnerId = myId;
     // step1
-    const returned = await this.workspaceMembersRepository.save(workspace);
+    const returned = await this.workspacesRepository.save(workspace);
 
     const workspaceMember = new WorkspaceMembers();
     workspaceMember.UserId = myId;

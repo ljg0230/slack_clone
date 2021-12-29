@@ -43,7 +43,6 @@ const SignUp = () => {
         axios
           .post('/api/users', { email, nickname, password })
           .then((response) => {
-            console.log(response);
             setSignUpSuccess(true);
           })
           .catch((error) => {

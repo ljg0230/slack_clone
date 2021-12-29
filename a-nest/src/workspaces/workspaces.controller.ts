@@ -34,17 +34,36 @@ export class WorkspacesController {
     );
   }
 
+  @ApiOperation({ summary: '워크스페이스 멤버 가져오기' })
   @Get(':url/members')
-  getAllMembersFromWorkspace(@Param('url') url: string) {
+  async getWorkspaceMembers(@Param('url') url: string) {
     return this.workspacesService.getWorkspaceMembers(url);
   }
 
+  @ApiOperation({ summary: '워크스페이스 멤버 초대하기' })
   @Post(':url/members')
-  inviteMembersToWorkspace() {}
+  async createWorkspaceMembers(
+    @Param('url') url: string,
+    @Body('email') email,
+  ) {
+    return this.workspacesService.createWorkspaceMembers(url, email);
+  }
 
-  @Delete(':url/members/:id')
-  kickMemberFromWorkspace() {}
+  @ApiOperation({ summary: '워크스페이스 특정멤버 가져오기' })
+  @Get(':url/members/:id')
+  async getWorkspaceMember(
+    @Param('url') url: string,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.workspacesService.getWorkspaceMember(url, id);
+  }
 
-  @Get('url/members/:id')
-  getMemberInfoInWorkspace() {}
+  @ApiOperation({ summary: '워크스페이스 특정멤버 가져오기' })
+  @Get(':url/users/:id')
+  async getWorkspaceUser(
+    @Param('url') url: string,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.workspacesService.getWorkspaceMember(url, id);
+  }
 }
