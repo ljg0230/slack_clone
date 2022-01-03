@@ -8,16 +8,18 @@ import {
   ParseIntPipe,
   UseInterceptors,
   UploadedFiles,
+  UseGuards,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { User } from 'src/common/decorators/user.decorator';
 import { Users } from 'src/entities/Users';
 import { ChannelsService } from './channels.service';
-import { PostChatDto } from './dto/post-chat.dto';
+import { CreateChannelDto } from './dto/create-channel.dto';
+import { LoggedInGuard } from 'src/auth/logged-in.guard';
 
 try {
   fs.readdirSync('uploads');
@@ -27,58 +29,88 @@ try {
 }
 
 @ApiTags('CHANNEL')
-@Controller('api/workspaces/:url/channels')
+@ApiCookieAuth('connect.sid')
+@UseGuards(LoggedInGuard)
+@Controller('api/workspaces')
 export class ChannelsController {
   constructor(private channelsService: ChannelsService) {}
-  @Get()
-  getAllChannels() {}
 
-  @Post()
-  createChannels() {}
+  @ApiOperation({ summary: '워크스페이스 채널 모두 가져오기' })
+  @Get(':url/channels')
+  async getWorkspaceChannels(@Param('url') url, @User() user: Users) {
+    return this.channelsService.getWorkspaceChannels(url, user.id);
+  }
 
-  @Get()
-  getSpecificChannel() {}
+  @ApiOperation({ summary: '워크스페이스 특정 채널 가져오기' })
+  @Get(':url/channels/:name')
+  async getWorkspaceChannel(@Param('url') url, @Param('name') name) {
+    return this.channelsService.getWorkspaceChannel(url, name);
+  }
 
-  @Get(':name/chats')
-  getChats(
-    @Param('url') url: string,
-    @Param('name') name: string,
-    @Query() query,
-    @Param() param,
+  @ApiOperation({ summary: '워크스페이스 채널 만들기' })
+  @Post(':url/channels')
+  async createWorkspaceChannels(
+    @Param('url') url,
+    @Body() body: CreateChannelDto,
+    @User() user: Users,
   ) {
-    console.log(query.perPage, query.page);
-    console.log(param.id, param.url);
-    return this.channelsService.getWorkspaceChannelChats(
+    return this.channelsService.createWorkspaceChannels(
       url,
-      name,
-      query.perPage,
-      query.page,
+      body.name,
+      user.id,
     );
   }
 
-  @Post(':name/chats')
-  postChat(
+  @ApiOperation({ summary: '워크스페이스 채널 멤버 가져오기' })
+  @Get(':url/channels/:name/members')
+  async getWorkspaceChannelMembers(
     @Param('url') url: string,
     @Param('name') name: string,
-    @Body() body: PostChatDto,
-    @User() user,
   ) {
-    return this.channelsService.postChat({
-      url,
-      name,
-      content: body.content,
-      myId: user.id,
-    });
-  }
-
-  @Get(':name/members')
-  getAllMembers(@Param('url') url: string, @Param('name') name: string) {
     return this.channelsService.getWorkspaceChannelMembers(url, name);
   }
 
-  @Post(':name/members')
-  inviteMembers() {}
+  @ApiOperation({ summary: '워크스페이스 채널 멤버 초대하기' })
+  @Post(':url/channels/:name/members')
+  async createWorkspaceMembers(
+    @Param('url') url: string,
+    @Param('name') name: string,
+    @Body('email') email,
+  ) {
+    return this.channelsService.createWorkspaceChannelMembers(url, name, email);
+  }
 
+  @ApiOperation({ summary: '워크스페이스 특정 채널 채팅 모두 가져오기' })
+  @Get(':url/channels/:name/chats')
+  async getWorkspaceChannelChats(
+    @Param('url') url,
+    @Param('name') name,
+    @Query('perPage', ParseIntPipe) perPage: number,
+    @Query('page', ParseIntPipe) page: number,
+  ) {
+    return this.channelsService.getWorkspaceChannelChats(
+      url,
+      name,
+      perPage,
+      page,
+    );
+  }
+
+  @ApiOperation({ summary: '워크스페이스 특정 채널 채팅 생성하기' })
+  @Post(':url/channels/:name/chats')
+  async createWorkspaceChannelChats(
+    @Param('url') url,
+    @Param('name') name,
+    @Body('content') content,
+    @User() user: Users,
+  ) {
+    return this.channelsService.createWorkspaceChannelChats(
+      url,
+      name,
+      content,
+      user.id,
+    );
+  }
   @ApiOperation({ summary: '워크스페이스 특정 채널 이미지 업로드하기' })
   @UseInterceptors(
     FilesInterceptor('image', 10, {
@@ -94,7 +126,7 @@ export class ChannelsController {
       limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
     }),
   )
-  @Post(':name/images')
+  @Post(':url/channels/:name/images')
   postImages(
     @UploadedFiles() files: Express.Multer.File[],
     @Param('url') url,

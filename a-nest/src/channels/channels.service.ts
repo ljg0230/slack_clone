@@ -146,7 +146,12 @@ export class ChannelsService {
     });
   }
 
-  async postChat({ url, name, content, myId }) {
+  async createWorkspaceChannelChats(
+    url: string,
+    name: string,
+    content: string,
+    myId: number,
+  ) {
     const channel = await this.channelsRepository
       .createQueryBuilder('channel')
       .innerJoin('channel.Workspace', 'workspace', 'workspace.url = :url', {
