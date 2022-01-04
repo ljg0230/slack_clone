@@ -7,7 +7,7 @@ import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { UsersModule } from './users/users.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
 import { ChannelsModule } from './channels/channels.module';
-import { DmsModule } from './dms/dms.module';
+import { DMsModule } from './dms/dms.module';
 import * as ormconfig from '../ormconfig';
 import { Users } from './entities/Users';
 import { AuthModule } from './auth/auth.module';
@@ -22,7 +22,7 @@ import { EventsModule } from './events/events.module';
     UsersModule,
     WorkspacesModule,
     ChannelsModule,
-    DmsModule,
+    DMsModule,
     TypeOrmModule.forRoot(ormconfig),
     TypeOrmModule.forFeature([Users]),
     EventsModule,
