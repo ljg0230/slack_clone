@@ -13,7 +13,6 @@ const ChannelList: FC = () => {
   const {
     data: userData,
     error,
-    revalidate,
     mutate,
   } = useSWR<IUser>('/api/users', fetcher, {
     dedupingInterval: 2000, // 2초

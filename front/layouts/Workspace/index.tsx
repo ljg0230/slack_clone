@@ -49,26 +49,21 @@ const Workspace: VFC = () => {
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
 
   const { workspace } = useParams<{ workspace: string }>();
-  const {
-    data: userData,
-    error,
-    mutate,
-    revalidate,
-  } = useSWR<IUser | false>('/api/users', fetcher, { dedupingInterval: 2000 });
+  const { data: userData, error, mutate } = useSWR<IUser | false>('/api/users', fetcher, { dedupingInterval: 2000 });
   const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
   const { data: memberData } = useSWR<IUser | false>(userData ? `/api/workspaces/${workspace}/members` : null, fetcher);
-  // const [socket, disconnect] = useSocket(workspace);
+  const [socket, disconnect] = useSocket(workspace);
 
-  // useEffect(() => {
-  //   if (channelData && userData && socket) {
-  //     socket.emit('login', { id: userData.id, channels: channelData.map((v) => v.id) });
-  //   }
-  // }, [socket, channelData, userData]);
-  // useEffect(() => {
-  //   return () => {
-  //     disconnect();
-  //   };
-  // }, [workspace, disconnect]);
+  useEffect(() => {
+    if (channelData && userData && socket) {
+      socket.emit('login', { id: userData.id, channels: channelData.map((v) => v.id) });
+    }
+  }, [socket, channelData, userData]);
+  useEffect(() => {
+    return () => {
+      disconnect();
+    };
+  }, [workspace, disconnect]);
 
   const onLogout = useCallback(() => {
     axios
@@ -111,7 +106,7 @@ const Workspace: VFC = () => {
           },
         )
         .then(() => {
-          revalidate();
+          mutate();
           setShowCreateWorkspaceModal(false);
           setNewWorkspace('');
           setNewUrl('');

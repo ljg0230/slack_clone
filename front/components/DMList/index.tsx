@@ -1,7 +1,5 @@
-// import useSocket from '@hooks/useSocket';
 import { CollapseButton } from '@components/DMList/styles';
 import useSocket from '@hooks/useSocket';
-// import useSocket from '@hooks/useSocket';
 import { IUser, IUserWithOnline } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import React, { FC, useCallback, useEffect, useState } from 'react';
@@ -14,7 +12,6 @@ const DMList: FC = () => {
   const {
     data: userData,
     error,
-    revalidate,
     mutate,
   } = useSWR<IUser>('/api/users', fetcher, {
     dedupingInterval: 2000, // 2초

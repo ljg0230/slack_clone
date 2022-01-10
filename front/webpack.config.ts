@@ -1,11 +1,17 @@
 import path from 'path';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 import webpack from 'webpack';
+import WebpackDevServer from 'webpack-dev-server';
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 // import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
+declare module 'webpack' {
+  interface Configuration {
+    devServer?: WebpackDevServer.Configuration;
+  }
+}
 const config: webpack.Configuration = {
   name: 'sleact',
   mode: isDevelopment ? 'development' : 'production',
@@ -75,11 +81,13 @@ const config: webpack.Configuration = {
   devServer: {
     historyApiFallback: true, // react router
     port: 3090,
+    devMiddleware: { publicPath: '/dist/' },
     static: { directory: path.resolve(__dirname) },
     proxy: {
       '/api/': {
         target: 'http://localhost:3095',
         changeOrigin: true,
+        ws: true,
       },
     },
   },

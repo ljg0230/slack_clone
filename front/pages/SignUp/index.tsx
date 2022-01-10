@@ -7,7 +7,7 @@ import useSWR from 'swr';
 import { Success, Form, Error, Label, Input, LinkContainer, Button, Header } from './styles';
 
 const SignUp = () => {
-  const { data, error, revalidate } = useSWR('/api/users', fetcher);
+  const { data } = useSWR('/api/users', fetcher);
 
   const [email, onChangeEmail] = useInput('');
   const [nickname, onChangeNickname] = useInput('');
@@ -22,7 +22,7 @@ const SignUp = () => {
       setPassword(e.target.value);
       setMissmatchError(e.target.value !== passwordCheck);
     },
-    [passwordCheck],
+    [passwordCheck, setPassword],
   );
 
   const onChangePasswordCheck = useCallback(
@@ -30,7 +30,7 @@ const SignUp = () => {
       setPasswordCheck(e.target.value);
       setMissmatchError(e.target.value !== password);
     },
-    [password],
+    [password, setPasswordCheck],
   );
 
   const onSubmit = useCallback(

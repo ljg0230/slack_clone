@@ -1,7 +1,8 @@
 import { Container, Header } from '@pages/Channel/styles';
 import React, { useCallback } from 'react';
 import gravatar from 'gravatar';
-import useSWR, { useSWRInfinite } from 'swr';
+import useSWR from 'swr';
+import useSWRInfinite from 'swr/infinite';
 import fetcher from '@utils/fetcher';
 import { useParams } from 'react-router';
 import ChatBox from '@components/ChatBox';
@@ -18,10 +19,9 @@ const DirectMessage = () => {
   const {
     data: chatData,
     mutate: mutateChat,
-    revalidate,
     setSize,
   } = useSWRInfinite<IDM[]>(
-    (index) => `/api/workspaces/${workspace}/dms/${id}/chats?perPage=20&page=${index + 1}`,
+    (index: number) => `/api/workspaces/${workspace}/dms/${id}/chats?perPage=20&page=${index + 1}`,
     fetcher,
   );
 
@@ -34,13 +34,13 @@ const DirectMessage = () => {
             content: chat,
           })
           .then(() => {
-            revalidate();
+            mutateChat();
             setChat('');
           })
           .catch(console.error);
       }
     },
-    [chat],
+    [chat, workspace, id, mutateChat, setChat],
   );
 
   if (!userData || !myData) {
