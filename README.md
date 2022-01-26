@@ -40,7 +40,7 @@ DB_DATABASE=sleact
 - [x] Chat - Infinity Scrolling
 - [x] Chat - Section by date
 - [x] User Authentication (Sign in, Sign up)
-- [ ] Image Upload
+- [x] Image Upload
 - [ ] Message Counting
 
 ## License
